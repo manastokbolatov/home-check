@@ -1,0 +1,46 @@
+# Operating System
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.*
+
+# Build
+build/
+dist/
+
+# Flutter
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub/
+build/
+ios/Pods/
+
+# Android
+**/android/.gradle/
+**/android/local.properties
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Coverage
+coverage.out
+*.coverprofile
+
+# Misc
+tmp/
+temp/
