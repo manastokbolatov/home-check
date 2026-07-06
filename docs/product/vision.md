@@ -2,107 +2,63 @@
 
 ## Mission
 
-HomeCheck gives people confidence that their home is safe before they leave.
-
-By guiding users through simple personalized checklists, HomeCheck helps prevent forgotten tasks, reduce anxiety, and create reliable daily routines.
+HomeCheck helps caregivers make sure their loved ones leave home safely by providing simple daily checklists and timely notifications.
 
 ---
 
-## Problem
+## The Problem
 
-Many people leave home wondering:
+Many caregivers worry about whether a child, elderly parent, or another dependent family member has completed important tasks before leaving home.
 
-- Did I turn off the stove?
-- Did I lock the door?
-- Did I close the windows?
-- Did I turn off the lights?
-- Did I take my keys?
-- Did my family member remember everything before leaving?
+Questions like:
 
-These small uncertainties can lead to stress, wasted time, or even dangerous situations.
+- Did they lock the door?
+- Did they turn off the stove?
+- Did they take their keys?
+- Did they remember everything?
 
----
-
-## Solution
-
-HomeCheck provides simple, personalized checklists that users complete before leaving home.
-
-When using shared family routines, family members can stay informed about checklist completion and receive notifications if important tasks remain unfinished after someone leaves home.
-
-The goal is to provide reassurance, not surveillance.
+often create unnecessary stress throughout the day.
 
 ---
 
-## Vision
+## Our Solution
 
-HomeCheck aims to become the most trusted companion for leaving home safely.
+HomeCheck provides personalized daily checklists for each dependent.
 
-The application should feel calm, simple, and reliable.
+Before leaving home, the dependent completes their checklist and confirms they are leaving.
 
-Every interaction should reduce anxiety rather than create additional pressure or unnecessary control.
+Caregivers receive a clear status update and are notified if confirmation is missing or if important tasks remain incomplete.
+
+HomeCheck is designed to reduce anxiety, not increase control.
 
 ---
 
-## Target Audience
+## Target Users
 
 ### Primary
 
-- Families with school-age children.
+- Parents
+- Guardians
+- Caregivers
 
 ### Secondary
 
-- People living alone.
-- Adults caring for elderly parents.
-- Anyone who wants a reliable leaving-home routine.
+- Elderly family members
+- Teenagers
+- People who benefit from structured routines
 
 ---
 
-## MVP Goals
+## Core Principles
 
-The first release will include:
-
-- User registration
-- Family creation
-- Family invitations
-- Shared checklists
-- Checklist completion
-- Parent notifications
-- Push notifications
+- Keep the experience simple.
+- Warn, never block.
+- Focus on peace of mind.
+- Build trust through transparency.
+- Ship a useful MVP before expanding features.
 
 ---
 
-## Non Goals
+## Long-Term Vision
 
-The MVP will NOT include:
-
-- Artificial Intelligence
-- Smart home integration
-- Voice assistant
-- NFC
-- QR codes
-- Camera verification
-- Gamification
-- Statistics
-- Widgets
-
----
-
-## Product Values
-
-HomeCheck should always be:
-
-- Simple
-- Reliable
-- Fast
-- Calm
-- Privacy-first
-
----
-
-## Core Principle
-
-Every feature must answer one question:
-
-**Does this help users leave home safely and confidently?**
-
-If the answer is no, it does not belong in the MVP.
+HomeCheck aims to become the trusted companion for families who want confidence that loved ones have safely completed their daily leaving-home routine.
