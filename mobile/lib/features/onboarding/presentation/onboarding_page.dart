@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../l10n/app_localizations.dart';
 
 class OnboardingPage extends StatelessWidget {
   const OnboardingPage({super.key});
@@ -73,16 +74,18 @@ class OnboardingPage extends StatelessWidget {
                 height: 56,
                 child: ElevatedButton(
                   onPressed: () {},
-                  child: const Text(
-                    'Get Started',
-                    style: TextStyle(fontSize: 18),
-                  ),
+                child: Text(
+                    AppLocalizations.of(context)!.getStarted,
+                    style: const TextStyle(fontSize: 18),
+                ),
                 ),
               ),
 
               TextButton(
                 onPressed: () {},
-                child: const Text('Skip'),
+                child: Text(
+                    AppLocalizations.of(context)!.skip,
+                ),
               ),
             ],
           ),

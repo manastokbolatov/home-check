@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+
+import '../l10n/app_localizations.dart';
 
 import '../features/onboarding/presentation/onboarding_page.dart';
 
@@ -9,16 +10,20 @@ class HomeCheckApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'HomeCheck',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: Colors.blue,
-      ),
-      textTheme: GoogleFonts.interTextTheme(),
-      useMaterial3: true,
-      ),
-      home: const OnboardingPage(),
+        title: 'HomeCheck',
+        debugShowCheckedModeBanner: false,
+
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('ru'),
+
+        theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.blue,
+            ),
+        ),
+
+        home: const OnboardingPage(),
     );
   }
 }
