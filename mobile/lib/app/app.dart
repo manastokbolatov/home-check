@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 
-import '../features/onboarding/presentation/onboarding_page.dart';
+import 'router.dart';
 
 class HomeCheckApp extends StatelessWidget {
   const HomeCheckApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
         title: 'HomeCheck',
         debugShowCheckedModeBanner: false,
 
@@ -23,7 +23,7 @@ class HomeCheckApp extends StatelessWidget {
             ),
         ),
 
-        home: const OnboardingPage(),
+        routerConfig: appRouter,
     );
   }
 }
