@@ -8,6 +8,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'providers/locale_controller.dart';
 
+import '../core/theme/app_theme.dart';
+
 class HomeCheckApp extends ConsumerWidget {
   const HomeCheckApp({super.key});
 
@@ -23,11 +25,7 @@ class HomeCheckApp extends ConsumerWidget {
       supportedLocales: AppLocalizations.supportedLocales,
       locale: locale,
 
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue,
-        ),
-      ),
+      theme: AppTheme.light(),
 
       routerConfig: appRouter,
     );

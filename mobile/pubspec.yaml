@@ -43,6 +43,7 @@ dependencies:
   go_router: ^17.3.0
   google_fonts: ^8.2.0
   riverpod_annotation: ^4.0.3
+  flutter_svg: ^2.3.0
 
 dev_dependencies:
   flutter_test:
@@ -63,6 +64,11 @@ dev_dependencies:
 # The following section is specific to Flutter packages.
 flutter:
   generate: true
+
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/illustrations/
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
