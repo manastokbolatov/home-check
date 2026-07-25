@@ -1,126 +1,220 @@
-# HomeCheck
+# 🏠 HomeCheck
 
-> Leave home with confidence.
+> Never leave home wondering if you forgot something.
 
-HomeCheck is a mobile application designed to help people build a reliable leaving-home routine.
+HomeCheck is a cross-platform Flutter application that helps families make sure everything at home is safe before leaving.
 
-Through personalized checklists and shared family workflows, HomeCheck helps reduce forgotten tasks, improve everyday safety, and give families peace of mind.
-
-**Current status:** 🚧 Early Development (Sprint 0)
+Parents can create customizable checklists for their children (or themselves), while children complete the checklist before leaving home. Parents can monitor progress remotely and receive notifications if important tasks were skipped.
 
 ---
 
-## Why HomeCheck?
+## ✨ Features
 
-Many people have experienced this feeling after leaving home:
+### Current
 
-- Did I lock the door?
-- Did I turn off the stove?
-- Did I switch off the lights?
-- Did I take my keys?
+- 🌍 English & Russian localization
+- 🚀 Feature-first project architecture
+- 🧭 GoRouter navigation
+- ⚡ Riverpod 3 state management (Notifier API)
+- 🎨 Material 3 UI
+- 🖼 SVG asset support
+- 📱 Initial onboarding screen
 
-HomeCheck helps answer those questions **before** you leave.
+### Planned
 
----
-
-## MVP Features
-
-- User authentication
-- Family creation
-- Family invitations
-- Shared checklists
-- Daily checklist completion
-- "Leave Home" confirmation
-- Push notifications
-
----
-
-## Technology Stack
-
-| Layer | Technology |
-|--------|------------|
-| Mobile | Flutter |
-| Backend | Go |
-| Database | PostgreSQL |
-| Infrastructure | Docker |
-| Notifications | Firebase Cloud Messaging |
+- 🔐 Authentication
+- 👨‍👩‍👧 Parent & Child accounts
+- ✅ Smart home checklists
+- 🔔 Push notifications
+- 📍 Leave-home reminders
+- ☁️ Firebase backend
+- 📊 Parent dashboard
+- 📈 Checklist history
+- 🌙 Dark mode
 
 ---
 
-## Repository Structure
+# 📸 Screenshots
 
-```text
-home-check/
+> Coming soon
+
+---
+
+# 🛠 Tech Stack
+
+- Flutter
+- Dart
+- Riverpod 3
+- GoRouter
+- Material 3
+- Flutter Localization (gen-l10n)
+- flutter_svg
+- Google Fonts
+
+Future:
+
+- Firebase Authentication
+- Cloud Firestore
+- Firebase Cloud Messaging
+- Firebase Analytics
+
+---
+
+# 📂 Project Structure
+
+```
+mobile/
+│
 ├── assets/
-├── backend/
-├── docs/
-├── mobile/
-├── README.md
-└── .gitignore
+│   ├── icons/
+│   ├── illustrations/
+│   └── images/
+│
+├── lib/
+│   ├── app/
+│   │   ├── providers/
+│   │   └── router.dart
+│   │
+│   ├── core/
+│   │
+│   ├── features/
+│   │   └── onboarding/
+│   │
+│   ├── l10n/
+│   │
+│   └── shared/
+│
+├── test/
+│
+└── pubspec.yaml
 ```
 
 ---
 
-## Documentation
+# 🏗 Architecture
 
-Project documentation can be found in the `docs` directory.
+The project follows a Feature-first architecture.
 
-Current documents:
+```
+Feature
+│
+├── data
+├── domain
+└── presentation
+```
 
-- Product Vision
+Application layer:
 
-More documentation will be added as development progresses.
+- app
+- core
+- shared
 
----
-
-## Development Roadmap
-
-### Sprint 0
-
-- Project foundation
-- Product vision
-- User flows
-- Wireframes
-- Architecture
-
-### Sprint 1
-
-Backend foundation
-
-### Sprint 2
-
-Mobile foundation
-
-### Sprint 3
-
-Family management
-
-### Sprint 4
-
-Checklist system
-
-### Sprint 5
-
-Push notifications
+This structure keeps every feature isolated and scalable.
 
 ---
 
-## Project Principles
+# 🌍 Localization
 
-HomeCheck follows a few simple principles:
+Currently supported languages:
 
-- Solve real problems.
-- Keep the interface simple.
-- Reduce anxiety, not increase control.
-- Build one feature at a time.
-- Ship an MVP before expanding functionality.
+- 🇺🇸 English
+- 🇷🇺 Russian
+
+Localization is generated using Flutter's built-in **gen-l10n** system.
 
 ---
 
-## Project Status
+# 🚧 Development Status
 
-The project is currently in the planning and architecture phase.
+## ✅ Completed
 
-No production code has been written yet.
+- Project initialization
+- Feature-first architecture
+- Riverpod integration
+- GoRouter setup
+- Localization (EN/RU)
+- Initial onboarding
+- SVG support
+- Assets structure
 
-This repository documents the complete journey from idea to production.
+## 🔄 In Progress
+
+- Professional onboarding redesign
+- Branding
+- Language switch
+- Design system
+
+## ⏳ Next Milestones
+
+- Authentication
+- Parent profile
+- Child profile
+- Checklist management
+- Notifications
+- Firebase integration
+
+---
+
+# 📍 Roadmap
+
+- [x] Flutter project setup
+- [x] Project architecture
+- [x] Riverpod
+- [x] GoRouter
+- [x] Localization
+- [x] Assets structure
+- [x] SVG support
+- [ ] Design System
+- [ ] Professional Onboarding
+- [ ] Authentication
+- [ ] Home Dashboard
+- [ ] Checklist Editor
+- [ ] Notifications
+- [ ] Firebase Backend
+- [ ] Deployment
+
+---
+
+# 🚀 Getting Started
+
+Clone the repository:
+
+```bash
+git clone https://github.com/manastokbolatov/home-check.git
+```
+
+Open the Flutter project:
+
+```bash
+cd home-check/mobile
+```
+
+Install dependencies:
+
+```bash
+flutter pub get
+```
+
+Run the application:
+
+```bash
+flutter run
+```
+
+---
+
+# 🤝 Contributing
+
+Contributions, ideas and feedback are welcome.
+
+Feel free to open an issue or submit a pull request.
+
+---
+
+# 📄 License
+
+This project is licensed under the MIT License.
+
+---
+
+Made with ❤️ using Flutter.
