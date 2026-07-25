@@ -4,21 +4,25 @@ import 'app_colors.dart';
 import 'app_text_styles.dart';
 
 abstract final class AppTheme {
-  static ThemeData light() {
+  AppTheme._();
+
+  static ThemeData get light {
     return ThemeData(
       useMaterial3: true,
+
+      scaffoldBackgroundColor: AppColors.background,
 
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppColors.primary,
       ),
 
-      scaffoldBackgroundColor: AppColors.background,
-
       textTheme: TextTheme(
-        displayLarge: AppTextStyles.display,
-        headlineMedium: AppTextStyles.heading,
-        bodyLarge: AppTextStyles.body,
-        bodyMedium: AppTextStyles.bodySecondary,
+        displayLarge: AppTextStyles.displayLarge,
+        headlineLarge: AppTextStyles.headlineLarge,
+        titleLarge: AppTextStyles.titleLarge,
+        bodyLarge: AppTextStyles.bodyLarge,
+        bodyMedium: AppTextStyles.bodyMedium,
+        labelLarge: AppTextStyles.labelLarge,
       ),
 
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -26,9 +30,6 @@ abstract final class AppTheme {
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
           minimumSize: const Size(double.infinity, 56),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
         ),
       ),
     );
