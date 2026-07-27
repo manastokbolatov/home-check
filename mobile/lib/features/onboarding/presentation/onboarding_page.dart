@@ -1,5 +1,16 @@
 import 'package:flutter/material.dart';
+
 import '../../../l10n/app_localizations.dart';
+
+import '../../../shared/theme/app_spacing.dart';
+
+import '../../../shared/widgets/primary_button.dart';
+
+import '../../../shared/theme/app_text_styles.dart';
+
+import '../../../shared/theme/app_colors.dart';
+
+import '../widgets/check_item.dart';
 
 class OnboardingPage extends StatelessWidget {
   const OnboardingPage({super.key});
@@ -10,8 +21,8 @@ class OnboardingPage extends StatelessWidget {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(
-            horizontal: 24,
-            vertical: 20,
+            horizontal: AppSpacing.lg,
+            vertical: AppSpacing.md,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -21,64 +32,48 @@ class OnboardingPage extends StatelessWidget {
               const Icon(
                 Icons.home_rounded,
                 size: 110,
-                color: Colors.blue,
+                color: AppColors.primary,
               ),
 
-              const SizedBox(height: 30),
+              const SizedBox(height: AppSpacing.xl),
 
-              const Text(
+              Text(
                 'HomeCheck',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: AppTextStyles.displayLarge,
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.md),
 
-              const Text(
+              Text(
                 'Check your home before\nleaving with confidence.',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.grey,
-                ),
+                style: AppTextStyles.bodyLarge,
               ),
 
-              const SizedBox(height: 40),
+              const SizedBox(height: AppSpacing.xxl),
 
-              const ListTile(
-                leading: Icon(Icons.check_circle, color: Colors.green),
-                title: Text('Turn off the stove'),
+              const CheckItem(
+                text: 'Turn off the stove',
               ),
 
-              const ListTile(
-                leading: Icon(Icons.check_circle, color: Colors.green),
-                title: Text('Unplug the iron'),
+              const CheckItem(
+                text: 'Unplug the iron',
               ),
 
-              const ListTile(
-                leading: Icon(Icons.check_circle, color: Colors.green),
-                title: Text('Close the windows'),
+              const CheckItem(
+                text: 'Close the windows',
               ),
 
-              const ListTile(
-                leading: Icon(Icons.check_circle, color: Colors.green),
-                title: Text('Switch off the lights'),
+              const CheckItem(
+                text: 'Switch off the lights',
               ),
 
               const Spacer(),
 
-              SizedBox(
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: () {},
-                child: Text(
-                    AppLocalizations.of(context)!.getStarted,
-                    style: const TextStyle(fontSize: 18),
-                ),
-                ),
+              PrimaryButton(
+                text: AppLocalizations.of(context)!.getStarted,
+                onPressed: () {},
               ),
 
               TextButton(
