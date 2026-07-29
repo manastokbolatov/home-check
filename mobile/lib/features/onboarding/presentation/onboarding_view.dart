@@ -5,6 +5,7 @@ import '../widgets/onboarding_page_content.dart';
 import 'onboarding_controller.dart';
 import '../widgets/page_indicator.dart';
 import '../widgets/onboarding_bottom_bar.dart';
+import 'package:go_router/go_router.dart';
 
 class OnboardingView extends StatefulWidget {
   const OnboardingView({super.key});
@@ -66,7 +67,7 @@ class _OnboardingViewState extends State<OnboardingView> {
                 curve: Curves.easeInOut,
               );
             } else {
-              // TODO: Navigate to home
+                context.go('/home');
             }
           },
           onSkip: () {
