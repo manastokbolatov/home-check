@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/checklist.dart';
 import 'checklist_tile.dart';
 
-class ChecklistPage extends StatelessWidget {
+class ChecklistPage extends StatefulWidget {
   const ChecklistPage({
     super.key,
     required this.checklist,
@@ -12,16 +12,38 @@ class ChecklistPage extends StatelessWidget {
   final Checklist checklist;
 
   @override
+  State<ChecklistPage> createState() => _ChecklistPageState();
+}
+
+class _ChecklistPageState extends State<ChecklistPage> {
+  late List<bool> completed;
+
+  @override
+  void initState() {
+    super.initState();
+
+    completed = widget.checklist.items
+        .map((item) => item.isCompleted)
+        .toList();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(checklist.title),
+        title: Text(widget.checklist.title),
       ),
       body: ListView.builder(
-        itemCount: checklist.items.length,
+        itemCount: widget.checklist.items.length,
         itemBuilder: (context, index) {
           return ChecklistTile(
-            item: checklist.items[index],
+            item: widget.checklist.items[index],
+            value: completed[index],
+            onChanged: (value) {
+              setState(() {
+                completed[index] = value ?? false;
+              });
+            },
           );
         },
       ),
