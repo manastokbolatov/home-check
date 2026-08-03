@@ -6,6 +6,7 @@ import 'onboarding_controller.dart';
 import '../widgets/page_indicator.dart';
 import '../widgets/onboarding_bottom_bar.dart';
 import 'package:go_router/go_router.dart';
+import '../../../shared/services/local_storage_service.dart';
 
 class OnboardingView extends StatefulWidget {
   const OnboardingView({super.key});
@@ -16,6 +17,7 @@ class OnboardingView extends StatefulWidget {
 
 class _OnboardingViewState extends State<OnboardingView> {
   final controller = OnboardingController();
+  final storage = LocalStorageService();
 
   @override
   void initState() {
@@ -60,14 +62,18 @@ class _OnboardingViewState extends State<OnboardingView> {
         OnboardingBottomBar(
           isLastPage:
               controller.currentPage == onboardingItems.length - 1,
-          onNext: () {
+          onNext: () async {
             if (controller.currentPage < onboardingItems.length - 1) {
               controller.pageController.nextPage(
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeInOut,
               );
             } else {
+              await storage.completeOnboarding();
+
+              if (context.mounted) {
                 context.go('/home');
+              }
             }
           },
           onSkip: () {
