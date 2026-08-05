@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../checklists/models/sample_checklists.dart';
 import '../../checklists/presentation/checklist_page.dart';
+import '../../checklists/presentation/create_checklist_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -42,7 +43,14 @@ class HomePage extends StatelessWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const CreateChecklistPage(),
+            ),
+          );
+        },
         child: const Icon(Icons.add),
       ),
     );
