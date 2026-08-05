@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/checklist.dart';
 import 'checklist_tile.dart';
+import '../../../shared/services/local_storage_service.dart';
 
 class ChecklistPage extends StatefulWidget {
   const ChecklistPage({super.key, required this.checklist});
@@ -14,16 +15,33 @@ class ChecklistPage extends StatefulWidget {
 
 class _ChecklistPageState extends State<ChecklistPage> {
   late List<bool> completed;
+  final storage = LocalStorageService();
   int get completedCount => completed.where((item) => item).length;
 
   double get progress => completedCount / completed.length;
 
   @override
   void initState() {
-    super.initState();
+  super.initState();
 
-    completed = widget.checklist.items.map((item) => item.isCompleted).toList();
+  completed = widget.checklist.items
+    .map((item) => item.isCompleted)
+    .toList();
+
+  _loadState();
   }
+
+    Future<void> _loadState() async {
+    final saved = await storage.loadChecklistState(
+        widget.checklist.id,
+    );
+
+    if (saved != null && mounted) {
+        setState(() {
+        completed = saved;
+        });
+    }
+    }
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +79,10 @@ class _ChecklistPageState extends State<ChecklistPage> {
                     setState(() {
                       completed[index] = value ?? false;
                     });
+                    storage.saveChecklistState(
+                    widget.checklist.id,
+                    completed,
+                    );
                   },
                 );
               },
