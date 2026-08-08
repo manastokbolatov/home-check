@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../models/checklist.dart';
+import '../models/checklist_item.dart';
+
 class CreateChecklistPage extends StatefulWidget {
   const CreateChecklistPage({super.key});
 
@@ -37,7 +40,9 @@ class _CreateChecklistPageState extends State<CreateChecklistPage> {
                 border: OutlineInputBorder(),
               ),
             ),
+
             const SizedBox(height: 24),
+
             Row(
               children: [
                 Expanded(
@@ -49,7 +54,9 @@ class _CreateChecklistPageState extends State<CreateChecklistPage> {
                     ),
                   ),
                 ),
+
                 const SizedBox(width: 8),
+
                 IconButton(
                   onPressed: () {
                     final task = taskController.text.trim();
@@ -67,7 +74,9 @@ class _CreateChecklistPageState extends State<CreateChecklistPage> {
                 ),
               ],
             ),
+
             const SizedBox(height: 24),
+
             Expanded(
               child: ListView.builder(
                 itemCount: tasks.length,
@@ -81,10 +90,35 @@ class _CreateChecklistPageState extends State<CreateChecklistPage> {
                 },
               ),
             ),
+
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  final title = titleController.text.trim();
+
+                  if (title.isEmpty || tasks.isEmpty) {
+                    return;
+                  }
+
+                  final checklist = Checklist(
+                    id: DateTime.now().millisecondsSinceEpoch.toString(),
+                    title: title,
+                    items: tasks
+                        .asMap()
+                        .entries
+                        .map(
+                          (entry) => ChecklistItem(
+                            id:
+                                '${DateTime.now().millisecondsSinceEpoch}_${entry.key}',
+                            title: entry.value,
+                          ),
+                        )
+                        .toList(),
+                  );
+
+                  Navigator.pop(context, checklist);
+                },
                 child: const Text('Save'),
               ),
             ),

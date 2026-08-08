@@ -1,11 +1,26 @@
 import 'package:flutter/material.dart';
 
+import '../../checklists/models/checklist.dart';
 import '../../checklists/models/sample_checklists.dart';
 import '../../checklists/presentation/checklist_page.dart';
 import '../../checklists/presentation/create_checklist_page.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  late List<Checklist> checklists;
+
+  @override
+  void initState() {
+    super.initState();
+
+    checklists = List.of(sampleChecklists);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,9 +30,9 @@ class HomePage extends StatelessWidget {
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
-        itemCount: sampleChecklists.length,
+        itemCount: checklists.length,
         itemBuilder: (context, index) {
-          final checklist = sampleChecklists[index];
+          final checklist = checklists[index];
 
           return Card(
             margin: const EdgeInsets.only(bottom: 16),
@@ -43,16 +58,25 @@ class HomePage extends StatelessWidget {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          final checklist = await Navigator.push<Checklist>(
             context,
             MaterialPageRoute(
               builder: (_) => const CreateChecklistPage(),
             ),
           );
+
+          if (checklist == null) {
+            return;
+          }
+
+          setState(() {
+            checklists.add(checklist);
+          });
         },
         child: const Icon(Icons.add),
       ),
     );
   }
 }
+
