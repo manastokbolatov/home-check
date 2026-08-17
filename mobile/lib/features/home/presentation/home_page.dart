@@ -4,6 +4,7 @@ import '../../checklists/models/checklist.dart';
 import '../../checklists/models/sample_checklists.dart';
 import '../../checklists/presentation/checklist_page.dart';
 import '../../checklists/presentation/create_checklist_page.dart';
+import '../../../shared/services/local_storage_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -15,11 +16,52 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late List<Checklist> checklists;
 
+  final storage = LocalStorageService();
+
   @override
   void initState() {
     super.initState();
 
     checklists = List.of(sampleChecklists);
+
+    _loadChecklists();
+  }
+
+  Future<void> _loadChecklists() async {
+    final saved = await storage.loadChecklists();
+
+    if (saved != null && mounted) {
+      setState(() {
+        checklists = saved;
+      });
+    }
+  }
+
+  Future<void> _createChecklist() async {
+    final checklist = await Navigator.push<Checklist>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const CreateChecklistPage(),
+      ),
+    );
+
+    if (checklist == null) {
+      return;
+    }
+
+    setState(() {
+      checklists.add(checklist);
+    });
+
+    await storage.saveChecklists(checklists);
+  }
+
+  Future<void> _deleteChecklist(int index) async {
+    setState(() {
+      checklists.removeAt(index);
+    });
+
+    await storage.saveChecklists(checklists);
   }
 
   @override
@@ -34,49 +76,53 @@ class _HomePageState extends State<HomePage> {
         itemBuilder: (context, index) {
           final checklist = checklists[index];
 
-          return Card(
-            margin: const EdgeInsets.only(bottom: 16),
-            child: ListTile(
-              leading: const Icon(Icons.checklist_rounded),
-              title: Text(checklist.title),
-              subtitle: Text(
-                '${checklist.items.length} tasks',
+          return Dismissible(
+            key: ValueKey(checklist.id),
+            direction: DismissDirection.endToStart,
+            onDismissed: (_) {
+              _deleteChecklist(index);
+            },
+            background: Container(
+              margin: const EdgeInsets.only(bottom: 16),
+              alignment: Alignment.centerRight,
+              padding: const EdgeInsets.only(right: 20),
+              decoration: BoxDecoration(
+                color: Colors.red,
+                borderRadius: BorderRadius.circular(12),
               ),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => ChecklistPage(
-                      checklist: checklist,
+              child: const Icon(
+                Icons.delete,
+                color: Colors.white,
+              ),
+            ),
+            child: Card(
+              margin: const EdgeInsets.only(bottom: 16),
+              child: ListTile(
+                leading: const Icon(Icons.checklist_rounded),
+                title: Text(checklist.title),
+                subtitle: Text(
+                  '${checklist.items.length} tasks',
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ChecklistPage(
+                        checklist: checklist,
+                      ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
           );
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final checklist = await Navigator.push<Checklist>(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const CreateChecklistPage(),
-            ),
-          );
-
-          if (checklist == null) {
-            return;
-          }
-
-          setState(() {
-            checklists.add(checklist);
-          });
-        },
+        onPressed: _createChecklist,
         child: const Icon(Icons.add),
       ),
     );
   }
 }
-
