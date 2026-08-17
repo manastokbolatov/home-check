@@ -56,6 +56,28 @@ class _HomePageState extends State<HomePage> {
     await storage.saveChecklists(checklists);
   }
 
+  Future<void> _openChecklist(int index) async {
+    final updatedChecklist =
+        await Navigator.push<Checklist>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ChecklistPage(
+          checklist: checklists[index],
+        ),
+      ),
+    );
+
+    if (updatedChecklist == null || !mounted) {
+      return;
+    }
+
+    setState(() {
+      checklists[index] = updatedChecklist;
+    });
+
+    await storage.saveChecklists(checklists);
+  }
+
   Future<void> _deleteChecklist(int index) async {
     setState(() {
       checklists.removeAt(index);
@@ -83,12 +105,17 @@ class _HomePageState extends State<HomePage> {
               _deleteChecklist(index);
             },
             background: Container(
-              margin: const EdgeInsets.only(bottom: 16),
+              margin: const EdgeInsets.only(
+                bottom: 16,
+              ),
               alignment: Alignment.centerRight,
-              padding: const EdgeInsets.only(right: 20),
+              padding: const EdgeInsets.only(
+                right: 20,
+              ),
               decoration: BoxDecoration(
                 color: Colors.red,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius:
+                    BorderRadius.circular(12),
               ),
               child: const Icon(
                 Icons.delete,
@@ -96,23 +123,22 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             child: Card(
-              margin: const EdgeInsets.only(bottom: 16),
+              margin: const EdgeInsets.only(
+                bottom: 16,
+              ),
               child: ListTile(
-                leading: const Icon(Icons.checklist_rounded),
+                leading: const Icon(
+                  Icons.checklist_rounded,
+                ),
                 title: Text(checklist.title),
                 subtitle: Text(
                   '${checklist.items.length} tasks',
                 ),
-                trailing: const Icon(Icons.chevron_right),
+                trailing: const Icon(
+                  Icons.chevron_right,
+                ),
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => ChecklistPage(
-                        checklist: checklist,
-                      ),
-                    ),
-                  );
+                  _openChecklist(index);
                 },
               ),
             ),

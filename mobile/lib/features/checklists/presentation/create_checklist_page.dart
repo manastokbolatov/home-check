@@ -4,17 +4,37 @@ import '../models/checklist.dart';
 import '../models/checklist_item.dart';
 
 class CreateChecklistPage extends StatefulWidget {
-  const CreateChecklistPage({super.key});
+  const CreateChecklistPage({
+    super.key,
+    this.checklist,
+  });
+
+  final Checklist? checklist;
 
   @override
   State<CreateChecklistPage> createState() => _CreateChecklistPageState();
 }
 
 class _CreateChecklistPageState extends State<CreateChecklistPage> {
-  final titleController = TextEditingController();
-  final taskController = TextEditingController();
+  late final TextEditingController titleController;
+  late final TextEditingController taskController;
 
-  final List<String> tasks = [];
+  late List<ChecklistItem> tasks;
+
+  bool get isEditing => widget.checklist != null;
+
+  @override
+  void initState() {
+    super.initState();
+
+    titleController = TextEditingController(
+      text: widget.checklist?.title ?? '',
+    );
+
+    taskController = TextEditingController();
+
+    tasks = widget.checklist?.items.toList() ?? [];
+  }
 
   @override
   void dispose() {
@@ -23,11 +43,49 @@ class _CreateChecklistPageState extends State<CreateChecklistPage> {
     super.dispose();
   }
 
+  void _addTask() {
+    final title = taskController.text.trim();
+
+    if (title.isEmpty) {
+      return;
+    }
+
+    setState(() {
+      tasks.add(
+        ChecklistItem(
+          id: DateTime.now().microsecondsSinceEpoch.toString(),
+          title: title,
+        ),
+      );
+
+      taskController.clear();
+    });
+  }
+
+  void _save() {
+    final title = titleController.text.trim();
+
+    if (title.isEmpty || tasks.isEmpty) {
+      return;
+    }
+
+    final checklist = Checklist(
+      id: widget.checklist?.id ??
+          DateTime.now().millisecondsSinceEpoch.toString(),
+      title: title,
+      items: tasks,
+    );
+
+    Navigator.pop(context, checklist);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create checklist'),
+        title: Text(
+          isEditing ? 'Edit checklist' : 'Create checklist',
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -52,24 +110,14 @@ class _CreateChecklistPageState extends State<CreateChecklistPage> {
                       labelText: 'Task',
                       border: OutlineInputBorder(),
                     ),
+                    onSubmitted: (_) => _addTask(),
                   ),
                 ),
 
                 const SizedBox(width: 8),
 
                 IconButton(
-                  onPressed: () {
-                    final task = taskController.text.trim();
-
-                    if (task.isEmpty) {
-                      return;
-                    }
-
-                    setState(() {
-                      tasks.add(task);
-                      taskController.clear();
-                    });
-                  },
+                  onPressed: _addTask,
                   icon: const Icon(Icons.add),
                 ),
               ],
@@ -81,11 +129,21 @@ class _CreateChecklistPageState extends State<CreateChecklistPage> {
               child: ListView.builder(
                 itemCount: tasks.length,
                 itemBuilder: (context, index) {
+                  final task = tasks[index];
+
                   return ListTile(
                     leading: const Icon(
                       Icons.check_box_outline_blank,
                     ),
-                    title: Text(tasks[index]),
+                    title: Text(task.title),
+                    trailing: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          tasks.removeAt(index);
+                        });
+                      },
+                      icon: const Icon(Icons.delete_outline),
+                    ),
                   );
                 },
               ),
@@ -94,31 +152,7 @@ class _CreateChecklistPageState extends State<CreateChecklistPage> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {
-                  final title = titleController.text.trim();
-
-                  if (title.isEmpty || tasks.isEmpty) {
-                    return;
-                  }
-
-                  final checklist = Checklist(
-                    id: DateTime.now().millisecondsSinceEpoch.toString(),
-                    title: title,
-                    items: tasks
-                        .asMap()
-                        .entries
-                        .map(
-                          (entry) => ChecklistItem(
-                            id:
-                                '${DateTime.now().millisecondsSinceEpoch}_${entry.key}',
-                            title: entry.value,
-                          ),
-                        )
-                        .toList(),
-                  );
-
-                  Navigator.pop(context, checklist);
-                },
+                onPressed: _save,
                 child: const Text('Save'),
               ),
             ),

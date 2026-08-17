@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 
 import '../models/checklist.dart';
+import '../models/checklist_item.dart';
 import 'checklist_tile.dart';
+import 'create_checklist_page.dart';
 import '../../../shared/services/local_storage_service.dart';
 
 class ChecklistPage extends StatefulWidget {
-  const ChecklistPage({super.key, required this.checklist});
+  const ChecklistPage({
+    super.key,
+    required this.checklist,
+  });
 
   final Checklist checklist;
 
@@ -14,81 +19,214 @@ class ChecklistPage extends StatefulWidget {
 }
 
 class _ChecklistPageState extends State<ChecklistPage> {
+  late Checklist checklist;
   late List<bool> completed;
-  final storage = LocalStorageService();
-  int get completedCount => completed.where((item) => item).length;
 
-  double get progress => completedCount / completed.length;
+  final storage = LocalStorageService();
+
+  int get completedCount =>
+      completed.where((item) => item).length;
+
+  double get progress {
+    if (completed.isEmpty) {
+      return 0;
+    }
+
+    return completedCount / completed.length;
+  }
 
   @override
   void initState() {
-  super.initState();
+    super.initState();
 
-  completed = widget.checklist.items
-    .map((item) => item.isCompleted)
-    .toList();
+    checklist = widget.checklist;
 
-  _loadState();
+    completed = checklist.items
+        .map((item) => item.isCompleted)
+        .toList();
+
+    _loadState();
   }
 
-    Future<void> _loadState() async {
+  Future<void> _loadState() async {
     final saved = await storage.loadChecklistState(
-        widget.checklist.id,
+      checklist.id,
     );
 
-    if (saved != null && mounted) {
-        setState(() {
-        completed = saved;
-        });
+    if (saved == null || !mounted) {
+      return;
     }
+
+    setState(() {
+      completed = List.generate(
+        checklist.items.length,
+        (index) {
+          if (index < saved.length) {
+            return saved[index];
+          }
+
+          return false;
+        },
+      );
+    });
+  }
+
+  Future<void> _saveCompletedState(
+    int index,
+    bool value,
+  ) async {
+    setState(() {
+      completed[index] = value;
+    });
+
+    await _saveChecklist();
+  }
+
+  Future<void> _editChecklist() async {
+    final updatedChecklist =
+        await Navigator.push<Checklist>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CreateChecklistPage(
+          checklist: checklist,
+        ),
+      ),
+    );
+
+    if (updatedChecklist == null || !mounted) {
+      return;
     }
+
+    final updatedItems = updatedChecklist.items.map(
+      (item) {
+        final oldIndex = checklist.items.indexWhere(
+          (oldItem) => oldItem.id == item.id,
+        );
+
+        if (oldIndex != -1 &&
+            oldIndex < completed.length) {
+          return ChecklistItem(
+            id: item.id,
+            title: item.title,
+            isCompleted: completed[oldIndex],
+          );
+        }
+
+        return item;
+      },
+    ).toList();
+
+    final newChecklist = Checklist(
+      id: updatedChecklist.id,
+      title: updatedChecklist.title,
+      items: updatedItems,
+    );
+
+    setState(() {
+      checklist = newChecklist;
+
+      completed = newChecklist.items
+          .map((item) => item.isCompleted)
+          .toList();
+    });
+
+    await _saveChecklist();
+  }
+
+  Future<void> _saveChecklist() async {
+    final savedChecklists =
+        await storage.loadChecklists();
+
+    if (savedChecklists == null) {
+      return;
+    }
+
+    final index = savedChecklists.indexWhere(
+      (item) => item.id == checklist.id,
+    );
+
+    if (index == -1) {
+      return;
+    }
+
+    savedChecklists[index] = checklist;
+
+    await storage.saveChecklists(savedChecklists);
+
+    await storage.saveChecklistState(
+      checklist.id,
+      completed,
+    );
+  }
+
+  void _goBack() {
+    Navigator.pop(context, checklist);
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(widget.checklist.title)),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '$completedCount / ${completed.length} completed',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 12),
-                LinearProgressIndicator(
-                  value: progress,
-                  minHeight: 8,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ],
-            ),
-          ),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          return;
+        }
 
-          Expanded(
-            child: ListView.builder(
-              itemCount: widget.checklist.items.length,
-              itemBuilder: (context, index) {
-                return ChecklistTile(
-                  item: widget.checklist.items[index],
-                  value: completed[index],
-                  onChanged: (value) {
-                    setState(() {
-                      completed[index] = value ?? false;
-                    });
-                    storage.saveChecklistState(
-                    widget.checklist.id,
-                    completed,
-                    );
-                  },
-                );
-              },
+        _goBack();
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(checklist.title),
+          actions: [
+            IconButton(
+              onPressed: _editChecklist,
+              icon: const Icon(Icons.edit),
             ),
-          ),
-        ],
+          ],
+        ),
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '$completedCount / ${completed.length} completed',
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleMedium,
+                  ),
+                  const SizedBox(height: 12),
+                  LinearProgressIndicator(
+                    value: progress,
+                    minHeight: 8,
+                    borderRadius:
+                        BorderRadius.circular(8),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: checklist.items.length,
+                itemBuilder: (context, index) {
+                  return ChecklistTile(
+                    item: checklist.items[index],
+                    value: completed[index],
+                    onChanged: (value) {
+                      _saveCompletedState(
+                        index,
+                        value ?? false,
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
