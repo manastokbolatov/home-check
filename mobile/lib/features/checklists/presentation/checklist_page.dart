@@ -77,6 +77,29 @@ class _ChecklistPageState extends State<ChecklistPage> {
   ) async {
     setState(() {
       completed[index] = value;
+
+      final updatedItems = checklist.items.map(
+        (item) {
+          final itemIndex =
+              checklist.items.indexOf(item);
+
+          if (itemIndex == index) {
+            return ChecklistItem(
+              id: item.id,
+              title: item.title,
+              isCompleted: value,
+            );
+          }
+
+          return item;
+        },
+      ).toList();
+
+      checklist = Checklist(
+        id: checklist.id,
+        title: checklist.title,
+        items: updatedItems,
+      );
     });
 
     await _saveChecklist();

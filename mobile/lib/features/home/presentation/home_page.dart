@@ -57,7 +57,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _openChecklist(int index) async {
-    final updatedChecklist = await Navigator.push<Checklist>(
+    final updatedChecklist =
+        await Navigator.push<Checklist>(
       context,
       MaterialPageRoute(
         builder: (_) => ChecklistPage(
@@ -77,7 +78,9 @@ class _HomePageState extends State<HomePage> {
     await storage.saveChecklists(checklists);
   }
 
-  Future<bool> _confirmDelete(Checklist checklist) async {
+  Future<bool> _confirmDelete(
+    Checklist checklist,
+  ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
@@ -115,6 +118,24 @@ class _HomePageState extends State<HomePage> {
     await storage.saveChecklists(checklists);
   }
 
+  double _progress(Checklist checklist) {
+    if (checklist.items.isEmpty) {
+      return 0;
+    }
+
+    final completed = checklist.items
+        .where((item) => item.isCompleted)
+        .length;
+
+    return completed / checklist.items.length;
+  }
+
+  int _completedCount(Checklist checklist) {
+    return checklist.items
+        .where((item) => item.isCompleted)
+        .length;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -126,6 +147,11 @@ class _HomePageState extends State<HomePage> {
         itemCount: checklists.length,
         itemBuilder: (context, index) {
           final checklist = checklists[index];
+
+          final completedCount =
+              _completedCount(checklist);
+
+          final progress = _progress(checklist);
 
           return Dismissible(
             key: ValueKey(checklist.id),
@@ -146,7 +172,8 @@ class _HomePageState extends State<HomePage> {
               ),
               decoration: BoxDecoration(
                 color: Colors.red,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius:
+                    BorderRadius.circular(12),
               ),
               child: const Icon(
                 Icons.delete,
@@ -157,20 +184,60 @@ class _HomePageState extends State<HomePage> {
               margin: const EdgeInsets.only(
                 bottom: 16,
               ),
-              child: ListTile(
-                leading: const Icon(
-                  Icons.checklist_rounded,
-                ),
-                title: Text(checklist.title),
-                subtitle: Text(
-                  '${checklist.items.length} tasks',
-                ),
-                trailing: const Icon(
-                  Icons.chevron_right,
-                ),
+              child: InkWell(
+                borderRadius:
+                    BorderRadius.circular(12),
                 onTap: () {
                   _openChecklist(index);
                 },
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment:
+                        CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.checklist_rounded,
+                            size: 32,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              checklist.title,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium,
+                            ),
+                          ),
+                          const Icon(
+                            Icons.chevron_right,
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      Text(
+                        '$completedCount / '
+                        '${checklist.items.length} completed',
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium,
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      LinearProgressIndicator(
+                        value: progress,
+                        minHeight: 8,
+                        borderRadius:
+                            BorderRadius.circular(8),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           );
