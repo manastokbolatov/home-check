@@ -64,8 +64,24 @@ class _CreateChecklistPageState extends State<CreateChecklistPage> {
 
   void _save() {
     final title = titleController.text.trim();
+    final task = taskController.text.trim();
 
-    if (title.isEmpty || tasks.isEmpty) {
+    if (title.isEmpty) {
+      return;
+    }
+
+    if (task.isNotEmpty) {
+      tasks.add(
+        ChecklistItem(
+          id: DateTime.now().microsecondsSinceEpoch.toString(),
+          title: task,
+        ),
+      );
+
+      taskController.clear();
+    }
+
+    if (tasks.isEmpty) {
       return;
     }
 

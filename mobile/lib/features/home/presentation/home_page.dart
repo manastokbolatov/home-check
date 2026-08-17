@@ -57,8 +57,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _openChecklist(int index) async {
-    final updatedChecklist =
-        await Navigator.push<Checklist>(
+    final updatedChecklist = await Navigator.push<Checklist>(
       context,
       MaterialPageRoute(
         builder: (_) => ChecklistPage(
@@ -76,6 +75,36 @@ class _HomePageState extends State<HomePage> {
     });
 
     await storage.saveChecklists(checklists);
+  }
+
+  Future<bool> _confirmDelete(Checklist checklist) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Delete checklist?'),
+          content: Text(
+            'Are you sure you want to delete "${checklist.title}"?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, false);
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    return confirmed == true;
   }
 
   Future<void> _deleteChecklist(int index) async {
@@ -101,6 +130,9 @@ class _HomePageState extends State<HomePage> {
           return Dismissible(
             key: ValueKey(checklist.id),
             direction: DismissDirection.endToStart,
+            confirmDismiss: (_) {
+              return _confirmDelete(checklist);
+            },
             onDismissed: (_) {
               _deleteChecklist(index);
             },
@@ -114,8 +146,7 @@ class _HomePageState extends State<HomePage> {
               ),
               decoration: BoxDecoration(
                 color: Colors.red,
-                borderRadius:
-                    BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(
                 Icons.delete,
