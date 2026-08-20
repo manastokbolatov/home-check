@@ -182,6 +182,76 @@ class _ChecklistPageState extends State<ChecklistPage> {
     );
   }
 
+  Future<void> _editTask(int index) async {
+    var editedTitle = checklist.items[index].title;
+
+    final newTitle = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Edit task'),
+          content: TextFormField(
+            initialValue: editedTitle,
+            autofocus: true,
+            decoration: const InputDecoration(
+              labelText: 'Task name',
+              border: OutlineInputBorder(),
+            ),
+            onChanged: (value) {
+              editedTitle = value;
+            },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                final title = editedTitle.trim();
+
+                if (title.isEmpty) {
+                  return;
+                }
+
+                Navigator.of(dialogContext).pop(title);
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (newTitle == null || !mounted) {
+      return;
+    }
+
+    final updatedItems = List<ChecklistItem>.from(
+      checklist.items,
+    );
+
+    final oldItem = updatedItems[index];
+
+    updatedItems[index] = ChecklistItem(
+      id: oldItem.id,
+      title: newTitle,
+      isCompleted: oldItem.isCompleted,
+    );
+
+    setState(() {
+      checklist = Checklist(
+        id: checklist.id,
+        title: checklist.title,
+        items: updatedItems,
+      );
+    });
+
+    await _saveChecklist();
+  }
+
   void _goBack() {
     Navigator.pop(context, checklist);
   }
@@ -243,6 +313,9 @@ class _ChecklistPageState extends State<ChecklistPage> {
                         index,
                         value ?? false,
                       );
+                    },
+                    onEdit: () {
+                      _editTask(index);
                     },
                   );
                 },
