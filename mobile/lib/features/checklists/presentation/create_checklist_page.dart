@@ -4,10 +4,7 @@ import '../models/checklist.dart';
 import '../models/checklist_item.dart';
 
 class CreateChecklistPage extends StatefulWidget {
-  const CreateChecklistPage({
-    super.key,
-    this.checklist,
-  });
+  const CreateChecklistPage({super.key, this.checklist});
 
   final Checklist? checklist;
 
@@ -86,7 +83,8 @@ class _CreateChecklistPageState extends State<CreateChecklistPage> {
     }
 
     final checklist = Checklist(
-      id: widget.checklist?.id ??
+      id:
+          widget.checklist?.id ??
           DateTime.now().millisecondsSinceEpoch.toString(),
       title: title,
       items: tasks,
@@ -99,9 +97,7 @@ class _CreateChecklistPageState extends State<CreateChecklistPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          isEditing ? 'Edit checklist' : 'Create checklist',
-        ),
+        title: Text(isEditing ? 'Edit checklist' : 'Create checklist'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -132,37 +128,52 @@ class _CreateChecklistPageState extends State<CreateChecklistPage> {
 
                 const SizedBox(width: 8),
 
-                IconButton(
-                  onPressed: _addTask,
-                  icon: const Icon(Icons.add),
-                ),
+                IconButton(onPressed: _addTask, icon: const Icon(Icons.add)),
               ],
             ),
 
             const SizedBox(height: 24),
 
-            Expanded(
-              child: ListView.builder(
-                itemCount: tasks.length,
-                itemBuilder: (context, index) {
-                  final task = tasks[index];
-
-                  return ListTile(
-                    leading: const Icon(
-                      Icons.check_box_outline_blank,
-                    ),
-                    title: Text(task.title),
-                    trailing: IconButton(
-                      onPressed: () {
-                        setState(() {
-                          tasks.removeAt(index);
-                        });
-                      },
-                      icon: const Icon(Icons.delete_outline),
-                    ),
-                  );
-                },
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Tasks',
+                style: Theme.of(context).textTheme.titleMedium,
               ),
+            ),
+
+            const SizedBox(height: 12),
+
+            Expanded(
+              child: tasks.isEmpty
+                  ? Center(
+                      child: Text(
+                        'No tasks yet',
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                    )
+                  : ListView.separated(
+                      itemCount: tasks.length,
+                      separatorBuilder: (_, _) => const SizedBox(height: 8),
+                      itemBuilder: (context, index) {
+                        final task = tasks[index];
+
+                        return Card(
+                          child: ListTile(
+                            leading: const Icon(Icons.check_box_outline_blank),
+                            title: Text(task.title),
+                            trailing: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  tasks.removeAt(index);
+                                });
+                              },
+                              icon: const Icon(Icons.delete_outline),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
             ),
 
             SizedBox(
