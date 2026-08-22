@@ -8,6 +8,7 @@ import '../../features/checklists/models/checklist_item.dart';
 class LocalStorageService {
   static const _onboardingKey = 'onboarding_completed';
   static const _checklistsKey = 'checklists';
+  static const _userRoleKey = 'user_role';
 
   Future<void> completeOnboarding() async {
     final prefs = await SharedPreferences.getInstance();
@@ -19,6 +20,18 @@ class LocalStorageService {
     final prefs = await SharedPreferences.getInstance();
 
     return prefs.getBool(_onboardingKey) ?? false;
+  }
+
+  Future<void> saveUserRole(String role) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.setString(_userRoleKey, role);
+  }
+
+  Future<String?> loadUserRole() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    return prefs.getString(_userRoleKey);
   }
 
   Future<void> saveChecklistState(

@@ -24,10 +24,19 @@ class _SplashPageState extends State<SplashPage> {
 
     if (!mounted) return;
 
-    if (completed) {
-      context.go('/home');
-    } else {
+    if (!completed) {
       context.go('/onboarding');
+      return;
+    }
+
+    final role = await storage.loadUserRole();
+
+    if (!mounted) return;
+
+    if (role == null) {
+      context.go('/role-selection');
+    } else {
+      context.go('/home');
     }
   }
 
