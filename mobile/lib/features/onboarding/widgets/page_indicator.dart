@@ -22,15 +22,11 @@ class PageIndicator extends StatelessWidget {
 
         return AnimatedContainer(
           duration: const Duration(milliseconds: 250),
-          margin: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.xs,
-          ),
+          margin: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
           width: isActive ? 24 : 8,
           height: 8,
           decoration: BoxDecoration(
-            color: isActive
-                ? AppColors.primary
-                : Colors.grey.shade300,
+            color: isActive ? AppColors.primary : Colors.grey.shade300,
             borderRadius: BorderRadius.circular(100),
           ),
         );

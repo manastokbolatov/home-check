@@ -40,37 +40,24 @@ class LocalStorageService {
   ) async {
     final prefs = await SharedPreferences.getInstance();
 
-    final values = completed
-        .map((value) => value ? '1' : '0')
-        .toList();
+    final values = completed.map((value) => value ? '1' : '0').toList();
 
-    await prefs.setStringList(
-      'checklist_$checklistId',
-      values,
-    );
+    await prefs.setStringList('checklist_$checklistId', values);
   }
 
-  Future<List<bool>?> loadChecklistState(
-    String checklistId,
-  ) async {
+  Future<List<bool>?> loadChecklistState(String checklistId) async {
     final prefs = await SharedPreferences.getInstance();
 
-    final values = prefs.getStringList(
-      'checklist_$checklistId',
-    );
+    final values = prefs.getStringList('checklist_$checklistId');
 
     if (values == null) {
       return null;
     }
 
-    return values
-        .map((value) => value == '1')
-        .toList();
+    return values.map((value) => value == '1').toList();
   }
 
-  Future<void> saveChecklists(
-    List<Checklist> checklists,
-  ) async {
+  Future<void> saveChecklists(List<Checklist> checklists) async {
     final prefs = await SharedPreferences.getInstance();
 
     final data = checklists.map((checklist) {
@@ -87,10 +74,7 @@ class LocalStorageService {
       };
     }).toList();
 
-    await prefs.setString(
-      _checklistsKey,
-      jsonEncode(data),
-    );
+    await prefs.setString(_checklistsKey, jsonEncode(data));
   }
 
   Future<List<Checklist>?> loadChecklists() async {

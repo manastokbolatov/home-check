@@ -6,11 +6,7 @@ import '../../../shared/theme/app_spacing.dart';
 import '../../../shared/theme/app_text_styles.dart';
 
 class PrimaryButton extends StatelessWidget {
-  const PrimaryButton({
-    super.key,
-    required this.text,
-    required this.onPressed,
-  });
+  const PrimaryButton({super.key, required this.text, required this.onPressed});
 
   final String text;
   final VoidCallback? onPressed;
@@ -34,10 +30,7 @@ class PrimaryButton extends StatelessWidget {
             vertical: AppSpacing.md,
           ),
         ),
-        child: Text(
-          text,
-          style: AppTextStyles.labelLarge,
-        ),
+        child: Text(text, style: AppTextStyles.labelLarge),
       ),
     );
   }

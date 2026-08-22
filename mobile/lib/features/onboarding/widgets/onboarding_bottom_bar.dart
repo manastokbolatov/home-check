@@ -32,9 +32,7 @@ class OnboardingBottomBar extends StatelessWidget {
           if (!isLastPage)
             TextButton(
               onPressed: onSkip,
-              child: Text(
-                AppLocalizations.of(context)!.skip,
-              ),
+              child: Text(AppLocalizations.of(context)!.skip),
             ),
         ],
       ),

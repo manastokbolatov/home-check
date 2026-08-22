@@ -6,10 +6,7 @@ import '../../../shared/services/local_storage_service.dart';
 class RoleSelectionPage extends StatelessWidget {
   const RoleSelectionPage({super.key});
 
-  Future<void> _selectRole(
-    BuildContext context,
-    String role,
-  ) async {
+  Future<void> _selectRole(BuildContext context, String role) async {
     final storage = LocalStorageService();
 
     await storage.saveUserRole(role);
@@ -22,9 +19,7 @@ class RoleSelectionPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Choose your role'),
-      ),
+      appBar: AppBar(title: const Text('Choose your role')),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(

@@ -43,9 +43,7 @@ class _OnboardingViewState extends State<OnboardingView> {
             controller: controller.pageController,
             itemCount: onboardingItems.length,
             itemBuilder: (context, index) {
-              return OnboardingPageContent(
-                item: onboardingItems[index],
-              );
+              return OnboardingPageContent(item: onboardingItems[index]);
             },
           ),
         ),
@@ -60,8 +58,7 @@ class _OnboardingViewState extends State<OnboardingView> {
         const SizedBox(height: 24),
 
         OnboardingBottomBar(
-          isLastPage:
-              controller.currentPage == onboardingItems.length - 1,
+          isLastPage: controller.currentPage == onboardingItems.length - 1,
           onNext: () async {
             if (controller.currentPage < onboardingItems.length - 1) {
               controller.pageController.nextPage(

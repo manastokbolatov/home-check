@@ -7,10 +7,7 @@ import '../models/onboarding_item.dart';
 import '../../../shared/theme/app_colors.dart';
 
 class OnboardingPageContent extends StatelessWidget {
-  const OnboardingPageContent({
-    super.key,
-    required this.item,
-  });
+  const OnboardingPageContent({super.key, required this.item});
 
   final OnboardingItem item;
 
@@ -24,12 +21,7 @@ class OnboardingPageContent extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            item.icon,
-            size: 110,
-            color: AppColors.primary,
-
-          ),
+          Icon(item.icon, size: 110, color: AppColors.primary),
 
           const SizedBox(height: AppSpacing.xl),
 

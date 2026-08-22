@@ -18,7 +18,6 @@ const onboardingItems = [
   OnboardingItem(
     icon: Icons.notifications_active_rounded,
     title: 'Stay informed',
-    description:
-        'Receive reminders and notifications before leaving home.',
+    description: 'Receive reminders and notifications before leaving home.',
   ),
 ];

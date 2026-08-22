@@ -10,9 +10,11 @@ class ChecklistPage extends StatefulWidget {
   const ChecklistPage({
     super.key,
     required this.checklist,
+    required this.userRole,
   });
 
   final Checklist checklist;
+  final String? userRole;
 
   @override
   State<ChecklistPage> createState() => _ChecklistPageState();
@@ -24,8 +26,9 @@ class _ChecklistPageState extends State<ChecklistPage> {
 
   final storage = LocalStorageService();
 
-  int get completedCount =>
-      completed.where((item) => item).length;
+  bool get isParent => widget.userRole == 'parent';
+
+  int get completedCount => completed.where((item) => item).length;
 
   double get progress {
     if (completed.isEmpty) {
@@ -41,59 +44,46 @@ class _ChecklistPageState extends State<ChecklistPage> {
 
     checklist = widget.checklist;
 
-    completed = checklist.items
-        .map((item) => item.isCompleted)
-        .toList();
+    completed = checklist.items.map((item) => item.isCompleted).toList();
 
     _loadState();
   }
 
   Future<void> _loadState() async {
-    final saved = await storage.loadChecklistState(
-      checklist.id,
-    );
+    final saved = await storage.loadChecklistState(checklist.id);
 
     if (saved == null || !mounted) {
       return;
     }
 
     setState(() {
-      completed = List.generate(
-        checklist.items.length,
-        (index) {
-          if (index < saved.length) {
-            return saved[index];
-          }
+      completed = List.generate(checklist.items.length, (index) {
+        if (index < saved.length) {
+          return saved[index];
+        }
 
-          return false;
-        },
-      );
+        return false;
+      });
     });
   }
 
-  Future<void> _saveCompletedState(
-    int index,
-    bool value,
-  ) async {
+  Future<void> _saveCompletedState(int index, bool value) async {
     setState(() {
       completed[index] = value;
 
-      final updatedItems = checklist.items.map(
-        (item) {
-          final itemIndex =
-              checklist.items.indexOf(item);
+      final updatedItems = checklist.items.map((item) {
+        final itemIndex = checklist.items.indexOf(item);
 
-          if (itemIndex == index) {
-            return ChecklistItem(
-              id: item.id,
-              title: item.title,
-              isCompleted: value,
-            );
-          }
+        if (itemIndex == index) {
+          return ChecklistItem(
+            id: item.id,
+            title: item.title,
+            isCompleted: value,
+          );
+        }
 
-          return item;
-        },
-      ).toList();
+        return item;
+      }).toList();
 
       checklist = Checklist(
         id: checklist.id,
@@ -106,13 +96,14 @@ class _ChecklistPageState extends State<ChecklistPage> {
   }
 
   Future<void> _editChecklist() async {
-    final updatedChecklist =
-        await Navigator.push<Checklist>(
+    if (!isParent) {
+      return;
+    }
+
+    final updatedChecklist = await Navigator.push<Checklist>(
       context,
       MaterialPageRoute(
-        builder: (_) => CreateChecklistPage(
-          checklist: checklist,
-        ),
+        builder: (_) => CreateChecklistPage(checklist: checklist),
       ),
     );
 
@@ -120,24 +111,21 @@ class _ChecklistPageState extends State<ChecklistPage> {
       return;
     }
 
-    final updatedItems = updatedChecklist.items.map(
-      (item) {
-        final oldIndex = checklist.items.indexWhere(
-          (oldItem) => oldItem.id == item.id,
+    final updatedItems = updatedChecklist.items.map((item) {
+      final oldIndex = checklist.items.indexWhere(
+        (oldItem) => oldItem.id == item.id,
+      );
+
+      if (oldIndex != -1 && oldIndex < completed.length) {
+        return ChecklistItem(
+          id: item.id,
+          title: item.title,
+          isCompleted: completed[oldIndex],
         );
+      }
 
-        if (oldIndex != -1 &&
-            oldIndex < completed.length) {
-          return ChecklistItem(
-            id: item.id,
-            title: item.title,
-            isCompleted: completed[oldIndex],
-          );
-        }
-
-        return item;
-      },
-    ).toList();
+      return item;
+    }).toList();
 
     final newChecklist = Checklist(
       id: updatedChecklist.id,
@@ -148,25 +136,20 @@ class _ChecklistPageState extends State<ChecklistPage> {
     setState(() {
       checklist = newChecklist;
 
-      completed = newChecklist.items
-          .map((item) => item.isCompleted)
-          .toList();
+      completed = newChecklist.items.map((item) => item.isCompleted).toList();
     });
 
     await _saveChecklist();
   }
 
   Future<void> _saveChecklist() async {
-    final savedChecklists =
-        await storage.loadChecklists();
+    final savedChecklists = await storage.loadChecklists();
 
     if (savedChecklists == null) {
       return;
     }
 
-    final index = savedChecklists.indexWhere(
-      (item) => item.id == checklist.id,
-    );
+    final index = savedChecklists.indexWhere((item) => item.id == checklist.id);
 
     if (index == -1) {
       return;
@@ -176,13 +159,14 @@ class _ChecklistPageState extends State<ChecklistPage> {
 
     await storage.saveChecklists(savedChecklists);
 
-    await storage.saveChecklistState(
-      checklist.id,
-      completed,
-    );
+    await storage.saveChecklistState(checklist.id, completed);
   }
 
   Future<void> _editTask(int index) async {
+    if (!isParent) {
+      return;
+    }
+
     var editedTitle = checklist.items[index].title;
 
     final newTitle = await showDialog<String>(
@@ -229,9 +213,7 @@ class _ChecklistPageState extends State<ChecklistPage> {
       return;
     }
 
-    final updatedItems = List<ChecklistItem>.from(
-      checklist.items,
-    );
+    final updatedItems = List<ChecklistItem>.from(checklist.items);
 
     final oldItem = updatedItems[index];
 
@@ -271,10 +253,11 @@ class _ChecklistPageState extends State<ChecklistPage> {
         appBar: AppBar(
           title: Text(checklist.title),
           actions: [
-            IconButton(
-              onPressed: _editChecklist,
-              icon: const Icon(Icons.edit),
-            ),
+            if (isParent)
+              IconButton(
+                onPressed: _editChecklist,
+                icon: const Icon(Icons.edit),
+              ),
           ],
         ),
         body: Column(
@@ -282,21 +265,17 @@ class _ChecklistPageState extends State<ChecklistPage> {
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     '$completedCount / ${completed.length} completed',
-                    style: Theme.of(context)
-                        .textTheme
-                        .titleMedium,
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const SizedBox(height: 12),
                   LinearProgressIndicator(
                     value: progress,
                     minHeight: 8,
-                    borderRadius:
-                        BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                 ],
               ),
@@ -309,14 +288,13 @@ class _ChecklistPageState extends State<ChecklistPage> {
                     item: checklist.items[index],
                     value: completed[index],
                     onChanged: (value) {
-                      _saveCompletedState(
-                        index,
-                        value ?? false,
-                      );
+                      _saveCompletedState(index, value ?? false);
                     },
-                    onEdit: () {
-                      _editTask(index);
-                    },
+                    onEdit: isParent
+                        ? () {
+                            _editTask(index);
+                          }
+                        : null,
                   );
                 },
               ),

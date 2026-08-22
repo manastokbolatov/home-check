@@ -12,9 +12,7 @@ abstract final class AppTheme {
 
       scaffoldBackgroundColor: AppColors.background,
 
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: AppColors.primary,
-      ),
+      colorScheme: ColorScheme.fromSeed(seedColor: AppColors.primary),
 
       textTheme: TextTheme(
         displayLarge: AppTextStyles.displayLarge,
