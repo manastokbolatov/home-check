@@ -4,6 +4,9 @@ import '../../checklists/models/checklist.dart';
 import '../../checklists/models/sample_checklists.dart';
 import '../../checklists/presentation/checklist_page.dart';
 import '../../checklists/presentation/create_checklist_page.dart';
+import '../../family/models/family.dart';
+import '../../family/presentation/create_family_page.dart';
+import '../../family/presentation/family_page.dart';
 import '../../../shared/services/local_storage_service.dart';
 
 class HomePage extends StatefulWidget {
@@ -19,6 +22,7 @@ class _HomePageState extends State<HomePage> {
   final storage = LocalStorageService();
 
   String? userRole;
+  Family? family;
 
   bool get isParent => userRole == 'parent';
 
@@ -27,7 +31,17 @@ class _HomePageState extends State<HomePage> {
       return checklists;
     }
 
-    return checklists.where((checklist) => checklist.assignedToChild).toList();
+    final child = family?.members
+        .where((member) => member.role == 'child')
+        .firstOrNull;
+
+    if (child == null) {
+      return [];
+    }
+
+    return checklists
+        .where((checklist) => checklist.assignedChildId == child.id)
+        .toList();
   }
 
   @override
@@ -38,6 +52,7 @@ class _HomePageState extends State<HomePage> {
 
     _loadChecklists();
     _loadUserRole();
+    _loadFamily();
   }
 
   Future<void> _loadChecklists() async {
@@ -59,6 +74,18 @@ class _HomePageState extends State<HomePage> {
 
     setState(() {
       userRole = role;
+    });
+  }
+
+  Future<void> _loadFamily() async {
+    final savedFamily = await storage.loadFamily();
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      family = savedFamily;
     });
   }
 
@@ -145,7 +172,50 @@ class _HomePageState extends State<HomePage> {
     await storage.saveChecklists(checklists);
   }
 
-  Future<void> _toggleAssignment(String checklistId) async {
+  Future<void> _assignChecklist(String checklistId) async {
+    final currentFamily = family;
+
+    if (currentFamily == null) {
+      return;
+    }
+
+    final children = currentFamily.members
+        .where((member) => member.role == 'child')
+        .toList();
+
+    if (children.isEmpty) {
+      return;
+    }
+
+    final selectedChildId = await showDialog<String?>(
+      context: context,
+      builder: (dialogContext) {
+        return SimpleDialog(
+          title: const Text('Assign to child'),
+          children: [
+            ...children.map((child) {
+              return SimpleDialogOption(
+                onPressed: () {
+                  Navigator.pop(dialogContext, child.id);
+                },
+                child: Text(child.name),
+              );
+            }),
+            SimpleDialogOption(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+              },
+              child: const Text('Unassign'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (!mounted) {
+      return;
+    }
+
     final index = checklists.indexWhere(
       (checklist) => checklist.id == checklistId,
     );
@@ -160,7 +230,7 @@ class _HomePageState extends State<HomePage> {
       id: checklist.id,
       title: checklist.title,
       items: checklist.items,
-      assignedToChild: !checklist.assignedToChild,
+      assignedChildId: selectedChildId,
     );
 
     setState(() {
@@ -168,6 +238,52 @@ class _HomePageState extends State<HomePage> {
     });
 
     await storage.saveChecklists(checklists);
+  }
+
+  Future<void> _createFamily() async {
+    final createdFamily = await Navigator.push<Family>(
+      context,
+      MaterialPageRoute(builder: (_) => const CreateFamilyPage()),
+    );
+
+    if (createdFamily == null || !mounted) {
+      return;
+    }
+
+    setState(() {
+      family = createdFamily;
+    });
+  }
+
+  Future<void> _openFamily() async {
+    final currentFamily = family;
+
+    if (currentFamily == null) {
+      return;
+    }
+
+    await Navigator.push<void>(
+      context,
+      MaterialPageRoute(builder: (_) => FamilyPage(family: currentFamily)),
+    );
+
+    await _loadFamily();
+  }
+
+  String _assignedChildName(Checklist checklist) {
+    final childId = checklist.assignedChildId;
+
+    if (childId == null || family == null) {
+      return 'Not assigned';
+    }
+
+    for (final member in family!.members) {
+      if (member.id == childId) {
+        return 'Assigned to: ${member.name}';
+      }
+    }
+
+    return 'Not assigned';
   }
 
   double _progress(Checklist checklist) {
@@ -187,7 +303,23 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('HomeCheck')),
+      appBar: AppBar(
+        title: const Text('HomeCheck'),
+        actions: [
+          if (isParent && family == null)
+            IconButton(
+              onPressed: _createFamily,
+              tooltip: 'Create family',
+              icon: const Icon(Icons.group_add_outlined),
+            ),
+          if (isParent && family != null)
+            IconButton(
+              onPressed: _openFamily,
+              tooltip: 'Open family',
+              icon: const Icon(Icons.family_restroom),
+            ),
+        ],
+      ),
       body: visibleChecklists.isEmpty
           ? const Center(child: Text('No checklists assigned yet'))
           : ListView.builder(
@@ -247,27 +379,31 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 if (isParent)
                                   IconButton(
-                                    tooltip: checklist.assignedToChild
-                                        ? 'Unassign from child'
-                                        : 'Assign to child',
+                                    tooltip: 'Assign to child',
                                     onPressed: () {
-                                      _toggleAssignment(checklist.id);
+                                      _assignChecklist(checklist.id);
                                     },
                                     icon: Icon(
-                                      checklist.assignedToChild
-                                          ? Icons.person_remove_outlined
-                                          : Icons.person_add_alt_1_outlined,
+                                      checklist.assignedChildId == null
+                                          ? Icons.person_add_alt_1_outlined
+                                          : Icons.person_outline,
                                     ),
                                   ),
                                 const Icon(Icons.chevron_right),
                               ],
                             ),
-                            const SizedBox(height: 16),
                             Text(
                               '$completedCount / '
                               '${checklist.items.length} completed',
                               style: Theme.of(context).textTheme.bodyMedium,
                             ),
+                            if (isParent) ...[
+                              const SizedBox(height: 6),
+                              Text(
+                                _assignedChildName(checklist),
+                                style: Theme.of(context).textTheme.bodySmall,
+                              ),
+                            ],
                             const SizedBox(height: 8),
                             LinearProgressIndicator(
                               value: progress,

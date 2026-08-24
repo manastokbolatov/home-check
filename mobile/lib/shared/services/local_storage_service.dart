@@ -4,11 +4,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../features/checklists/models/checklist.dart';
 import '../../features/checklists/models/checklist_item.dart';
+import '../../features/family/models/family.dart';
+import '../../features/family/models/family_member.dart';
 
 class LocalStorageService {
   static const _onboardingKey = 'onboarding_completed';
   static const _checklistsKey = 'checklists';
   static const _userRoleKey = 'user_role';
+  static const _familyKey = 'family';
 
   Future<void> completeOnboarding() async {
     final prefs = await SharedPreferences.getInstance();
@@ -64,7 +67,7 @@ class LocalStorageService {
       return {
         'id': checklist.id,
         'title': checklist.title,
-        'assignedToChild': checklist.assignedToChild,
+        'assignedChildId': checklist.assignedChildId,
         'items': checklist.items.map((item) {
           return {
             'id': item.id,
@@ -106,8 +109,50 @@ class LocalStorageService {
         id: map['id'] as String,
         title: map['title'] as String,
         items: items,
-        assignedToChild: map['assignedToChild'] as bool? ?? false,
+        assignedChildId: map['assignedChildId'] as String?,
       );
     }).toList();
+  }
+
+  Future<void> saveFamily(Family family) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final data = {
+      'id': family.id,
+      'name': family.name,
+      'members': family.members.map((member) {
+        return {'id': member.id, 'name': member.name, 'role': member.role};
+      }).toList(),
+    };
+
+    await prefs.setString(_familyKey, jsonEncode(data));
+  }
+
+  Future<Family?> loadFamily() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final value = prefs.getString(_familyKey);
+
+    if (value == null) {
+      return null;
+    }
+
+    final map = jsonDecode(value) as Map<String, dynamic>;
+
+    final members = (map['members'] as List).map((member) {
+      final memberMap = member as Map<String, dynamic>;
+
+      return FamilyMember(
+        id: memberMap['id'] as String,
+        name: memberMap['name'] as String,
+        role: memberMap['role'] as String,
+      );
+    }).toList();
+
+    return Family(
+      id: map['id'] as String,
+      name: map['name'] as String,
+      members: members,
+    );
   }
 }
