@@ -22,6 +22,14 @@ class _HomePageState extends State<HomePage> {
 
   bool get isParent => userRole == 'parent';
 
+  List<Checklist> get visibleChecklists {
+    if (isParent) {
+      return checklists;
+    }
+
+    return checklists.where((checklist) => checklist.assignedToChild).toList();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -71,7 +79,15 @@ class _HomePageState extends State<HomePage> {
     await storage.saveChecklists(checklists);
   }
 
-  Future<void> _openChecklist(int index) async {
+  Future<void> _openChecklist(String checklistId) async {
+    final index = checklists.indexWhere(
+      (checklist) => checklist.id == checklistId,
+    );
+
+    if (index == -1) {
+      return;
+    }
+
     final updatedChecklist = await Navigator.push<Checklist>(
       context,
       MaterialPageRoute(
@@ -121,9 +137,34 @@ class _HomePageState extends State<HomePage> {
     return confirmed == true;
   }
 
-  Future<void> _deleteChecklist(int index) async {
+  Future<void> _deleteChecklist(String checklistId) async {
     setState(() {
-      checklists.removeAt(index);
+      checklists.removeWhere((checklist) => checklist.id == checklistId);
+    });
+
+    await storage.saveChecklists(checklists);
+  }
+
+  Future<void> _toggleAssignment(String checklistId) async {
+    final index = checklists.indexWhere(
+      (checklist) => checklist.id == checklistId,
+    );
+
+    if (index == -1) {
+      return;
+    }
+
+    final checklist = checklists[index];
+
+    final updatedChecklist = Checklist(
+      id: checklist.id,
+      title: checklist.title,
+      items: checklist.items,
+      assignedToChild: !checklist.assignedToChild,
+    );
+
+    setState(() {
+      checklists[index] = updatedChecklist;
     });
 
     await storage.saveChecklists(checklists);
@@ -147,82 +188,100 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('HomeCheck')),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: checklists.length,
-        itemBuilder: (context, index) {
-          final checklist = checklists[index];
+      body: visibleChecklists.isEmpty
+          ? const Center(child: Text('No checklists assigned yet'))
+          : ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: visibleChecklists.length,
+              itemBuilder: (context, index) {
+                final checklist = visibleChecklists[index];
 
-          final completedCount = _completedCount(checklist);
+                final completedCount = _completedCount(checklist);
 
-          final progress = _progress(checklist);
+                final progress = _progress(checklist);
 
-          return Dismissible(
-            key: ValueKey(checklist.id),
-            direction: isParent
-                ? DismissDirection.endToStart
-                : DismissDirection.none,
-            confirmDismiss: (_) {
-              return _confirmDelete(checklist);
-            },
-            onDismissed: (_) {
-              _deleteChecklist(index);
-            },
-            background: Container(
-              margin: const EdgeInsets.only(bottom: 16),
-              alignment: Alignment.centerRight,
-              padding: const EdgeInsets.only(right: 20),
-              decoration: BoxDecoration(
-                color: Colors.red,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(Icons.delete, color: Colors.white),
-            ),
-            child: Card(
-              margin: const EdgeInsets.only(bottom: 16),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(12),
-                onTap: () {
-                  _openChecklist(index);
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(Icons.checklist_rounded, size: 32),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              checklist.title,
-                              style: Theme.of(context).textTheme.titleMedium,
-                            ),
-                          ),
-                          const Icon(Icons.chevron_right),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        '$completedCount / '
-                        '${checklist.items.length} completed',
-                        style: Theme.of(context).textTheme.bodyMedium,
-                      ),
-                      const SizedBox(height: 8),
-                      LinearProgressIndicator(
-                        value: progress,
-                        minHeight: 8,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ],
+                return Dismissible(
+                  key: ValueKey(checklist.id),
+                  direction: isParent
+                      ? DismissDirection.endToStart
+                      : DismissDirection.none,
+                  confirmDismiss: (_) {
+                    return _confirmDelete(checklist);
+                  },
+                  onDismissed: (_) {
+                    _deleteChecklist(checklist.id);
+                  },
+                  background: Container(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.only(right: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(Icons.delete, color: Colors.white),
                   ),
-                ),
-              ),
+                  child: Card(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () {
+                        _openChecklist(checklist.id);
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(Icons.checklist_rounded, size: 32),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    checklist.title,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleMedium,
+                                  ),
+                                ),
+                                if (isParent)
+                                  IconButton(
+                                    tooltip: checklist.assignedToChild
+                                        ? 'Unassign from child'
+                                        : 'Assign to child',
+                                    onPressed: () {
+                                      _toggleAssignment(checklist.id);
+                                    },
+                                    icon: Icon(
+                                      checklist.assignedToChild
+                                          ? Icons.person_remove_outlined
+                                          : Icons.person_add_alt_1_outlined,
+                                    ),
+                                  ),
+                                const Icon(Icons.chevron_right),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              '$completedCount / '
+                              '${checklist.items.length} completed',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                            const SizedBox(height: 8),
+                            LinearProgressIndicator(
+                              value: progress,
+                              minHeight: 8,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
-          );
-        },
-      ),
       floatingActionButton: isParent
           ? FloatingActionButton(
               onPressed: _createChecklist,

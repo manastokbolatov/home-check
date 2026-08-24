@@ -64,6 +64,7 @@ class LocalStorageService {
       return {
         'id': checklist.id,
         'title': checklist.title,
+        'assignedToChild': checklist.assignedToChild,
         'items': checklist.items.map((item) {
           return {
             'id': item.id,
@@ -105,6 +106,7 @@ class LocalStorageService {
         id: map['id'] as String,
         title: map['title'] as String,
         items: items,
+        assignedToChild: map['assignedToChild'] as bool? ?? false,
       );
     }).toList();
   }
